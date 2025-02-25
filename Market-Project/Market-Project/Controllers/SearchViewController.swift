@@ -54,7 +54,9 @@ final class SearchViewController: BaseViewController {
         
         output.searchText
             .bind(with: self, onNext: { owner, text in
-                print("Push to SearchResultViewController")
+                let viewModel = SearchResultViewModel(searchText: text)
+                let searchResultVC = SearchResultViewController(viewModel: viewModel)
+                owner.navigationController?.pushViewController(searchResultVC, animated: true)
             })
             .disposed(by: disposeBag)
         
