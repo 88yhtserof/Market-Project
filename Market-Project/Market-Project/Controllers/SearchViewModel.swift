@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-class SearchViewModel: BaseViewModel {
+final class SearchViewModel: BaseViewModel {
     
     let disposeBag = DisposeBag()
     

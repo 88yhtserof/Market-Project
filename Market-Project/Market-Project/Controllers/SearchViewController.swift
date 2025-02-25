@@ -11,7 +11,7 @@ import SnapKit
 import RxSwift
 import RxCocoa
 
-class SearchViewController: BaseViewController {
+final class SearchViewController: BaseViewController {
     private let searchBar = UISearchBar()
     
     private let viewModel = SearchViewModel()
@@ -59,9 +59,7 @@ class SearchViewController: BaseViewController {
             .disposed(by: disposeBag)
         
         output.errorMessage
-            .bind(with: self, onNext: { owner, text in
-                print("present Alert")
-            })
+            .bind(to: rx.showErrorAlert)
             .disposed(by: disposeBag)
     }
 }
