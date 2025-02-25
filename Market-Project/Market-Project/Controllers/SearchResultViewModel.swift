@@ -23,7 +23,7 @@ final class SearchResultViewModel: BaseViewModel {
         let searchText: BehaviorRelay<String>
         let searchResultItems: BehaviorRelay<[MarketItem]>
         let totalSearchResultCount: BehaviorRelay<String>
-        let errorMessage: BehaviorRelay<String?>
+        let errorMessage: PublishRelay<String>
     }
     
     private let searchText: String
@@ -41,7 +41,7 @@ final class SearchResultViewModel: BaseViewModel {
         let searchText = BehaviorRelay<String>(value: searchText)
         let searchResultItems = BehaviorRelay<[MarketItem]>(value: [])
         let totalSearchResultCount = BehaviorRelay<String>(value: "")
-        let errorMessage = BehaviorRelay<String?>(value: nil)
+        let errorMessage = PublishRelay<String>()
         
         searchText
             .withUnretained(self)

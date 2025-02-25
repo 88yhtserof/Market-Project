@@ -53,7 +53,8 @@ final class SearchResultViewController: BaseViewController {
             .disposed(by: disposeBag)
         
         output.searchResultItems
-            .bind(to: mainView.collectionView.rx.items(cellIdentifier: SearchResultCollectionViewCell.identifier, cellType: SearchResultCollectionViewCell.self)) { row, element, cell in
+            .asDriver()
+            .drive( mainView.collectionView.rx.items(cellIdentifier: SearchResultCollectionViewCell.identifier, cellType: SearchResultCollectionViewCell.self)) { row, element, cell in
                 cell.configure(with: element)
             }
             .disposed(by: disposeBag)
@@ -62,6 +63,10 @@ final class SearchResultViewController: BaseViewController {
             .bind(with: self) { owner, text in
                 owner.mainView.totalLabel.argument = text
             }
+            .disposed(by: disposeBag)
+        
+        output.errorMessage
+            .bind(to: rx.showErrorAlert)
             .disposed(by: disposeBag)
     }
     
