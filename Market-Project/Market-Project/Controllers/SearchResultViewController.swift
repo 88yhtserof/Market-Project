@@ -52,10 +52,18 @@ final class SearchResultViewController: BaseViewController {
             .bind(to: navigationItem.rx.title)
             .disposed(by: disposeBag)
         
-        output.searchResultItems
+        let searchResultItems = output.searchResultItems
             .asDriver()
+        
+        searchResultItems
             .drive( mainView.collectionView.rx.items(cellIdentifier: SearchResultCollectionViewCell.identifier, cellType: SearchResultCollectionViewCell.self)) { row, element, cell in
                 cell.configure(with: element)
+            }
+            .disposed(by: disposeBag)
+        
+        searchResultItems
+            .drive(with: self) { owner, _ in
+                owner.mainView.collectionView.contentOffset = .zero
             }
             .disposed(by: disposeBag)
         
