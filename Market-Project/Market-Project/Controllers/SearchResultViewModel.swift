@@ -50,7 +50,9 @@ final class SearchResultViewModel: BaseViewModel {
                     .getShopList(searchWord: text, sort: owner.sort, start: String(owner.start))
                     .debug("getShopList")
                     .catch { error in
-                        errorMessage.accept(error.localizedDescription)
+                        if let error = error as? NetworkError {
+                            errorMessage.accept(error.errorMessageForUser)
+                        }
                         return Single<MarketResponse?>.just(nil)
                     }
             }
@@ -83,7 +85,9 @@ final class SearchResultViewModel: BaseViewModel {
                     .getShopList(searchWord: text, sort: owner.sort, start: String(owner.start))
                     .debug("getShopList pagination")
                     .catch { error in
-                        errorMessage.accept(error.localizedDescription)
+                        if let error = error as? NetworkError {
+                            errorMessage.accept(error.errorMessageForUser)
+                        }
                         return Single<MarketResponse?>.just(nil)
                     }
             }
