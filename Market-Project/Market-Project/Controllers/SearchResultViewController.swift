@@ -117,7 +117,6 @@ final class SearchResultViewController: BaseViewController {
             .compactMap{ $0 as? SelectButton }
             .forEach{ $0.isShownSelected = false }
         sortButtonDidTapped.accept(sender.tag)
-//        viewModel.inputSelectSort.send(sender.tag)
     }
 }
 

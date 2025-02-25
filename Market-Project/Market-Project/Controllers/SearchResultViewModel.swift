@@ -97,6 +97,26 @@ final class SearchResultViewModel: BaseViewModel {
             }
             .disposed(by: disposeBag)
         
+        input.tapSortButton
+            .distinctUntilChanged()
+            .compactMap{ MarketItemSort(rawValue: $0) }
+            .bind(with: self) { owner, sort in
+                owner.sort = sort
+                searchText.accept(owner.searchText)
+            }
+            .disposed(by: disposeBag)
+        
+//        guard let sort = MarketItemSort(rawValue: sortNumber) else {
+//            print("Unknown sort")
+//            return
+//        }
+//        guard self.sort != sort else {
+//            print("already selected")
+//            return
+//        }
+//        self.sort = sort
+//        self.outputScrollToTop.send()
+//        self.loadMarketItems(sort: sort, isInitialLoad: true)
         
         return Output(searchText: searchText,
                       searchResultItems: searchResultItems,
