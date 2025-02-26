@@ -33,13 +33,7 @@ final class SearchViewController: BaseViewController {
         wishListBarButtonItem.target = self
         wishListBarButtonItem.image = UIImage(systemName: "heart.fill")
         
-        searchBar.backgroundImage = UIImage()
-        searchBar.searchTextField.backgroundColor = .white.withAlphaComponent(0.1)
-        searchBar.searchTextField.tintColor = .systemGray2
-        searchBar.searchTextField.textColor = .systemGray2
-        searchBar.searchTextField.leftView?.tintColor = .systemGray2
-        searchBar.searchTextField.attributedPlaceholder = NSAttributedString(string: "브랜드, 상품, 프로필, 태그 등",
-                                                                             attributes: [NSAttributedString.Key.foregroundColor : UIColor.systemGray2])
+        searchBar.configureDarkMode()
     }
     
     override func configureHierarchy() {
