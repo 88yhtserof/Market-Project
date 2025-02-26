@@ -34,7 +34,7 @@ final class WishListViewController: BaseViewController {
         navigationItem.title = "위시 리스트"
         navigationItem.searchController = searchController
         
-        searchController.searchBar.configureDarkMode()
+        searchController.searchBar.configureDarkMode(placeholder: "갖고 싶은 상품을 기록하세요")
     }
     
     override func configureHierarchy() {
