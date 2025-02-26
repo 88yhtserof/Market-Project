@@ -32,6 +32,7 @@ final class WishListViewController: BaseViewController {
     override func configureSubviews() {
         navigationItem.title = "위시 리스트"
         navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
         
         searchController.searchBar.configureDarkMode(placeholder: "갖고 싶은 상품을 기록하세요")
     }
