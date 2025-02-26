@@ -12,6 +12,8 @@ import RxSwift
 import RxCocoa
 
 final class SearchViewController: BaseViewController {
+    
+    private let wishListBarButtonItem = UIBarButtonItem()
     private let searchBar = UISearchBar()
     
     private let viewModel = SearchViewModel()
@@ -23,8 +25,13 @@ final class SearchViewController: BaseViewController {
         bind()
     }
     
+    //MARK: - Configuration
     override func configureSubviews() {
         navigationItem.title = SceneCategory.search.title
+        navigationItem.rightBarButtonItem = wishListBarButtonItem
+        
+        wishListBarButtonItem.target = self
+        wishListBarButtonItem.image = UIImage(systemName: "heart.fill")
         
         searchBar.backgroundImage = UIImage()
         searchBar.searchTextField.backgroundColor = .white.withAlphaComponent(0.1)
@@ -46,6 +53,7 @@ final class SearchViewController: BaseViewController {
         }
     }
     
+    //MARK: - Bind
     private func bind() {
         
         let input = SearchViewModel.Input(editSearchText: searchBar.rx.text.orEmpty,
@@ -63,6 +71,14 @@ final class SearchViewController: BaseViewController {
         output.errorMessage
             .debug("errorMessage")
             .drive(rx.showErrorAlert)
+            .disposed(by: disposeBag)
+        
+        wishListBarButtonItem.rx.tap
+            .asDriver()
+            .drive(with: self) { owner, _ in
+                let wishVC = WishListViewController()
+                owner.navigationController?.pushViewController(wishVC, animated: true)
+            }
             .disposed(by: disposeBag)
     }
 }
