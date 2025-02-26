@@ -16,7 +16,6 @@ final class WishListViewController: BaseViewController {
     private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout())
     
     private var dataSource: DataSource!
-    private var snapshot: Snapshot!
     
     private let viewModel = WishListViewModel()
     
@@ -50,7 +49,12 @@ final class WishListViewController: BaseViewController {
     
     //MARK: - Bind
     private func bind() {
-        let input = WishListViewModel.Input(searchText: searchController.searchBar.rx.text.orEmpty, tapSearchButton: searchController.searchBar.rx.searchButtonClicked)
+        
+        let selectItem = PublishRelay<Wish>()
+        
+        let input = WishListViewModel.Input(searchText: searchController.searchBar.rx.text.orEmpty,
+                                            tapSearchButton: searchController.searchBar.rx.searchButtonClicked,
+                                            selectItem: selectItem)
         let output = viewModel.transform(input: input)
         
         output.emptySearchBarText
@@ -59,6 +63,14 @@ final class WishListViewController: BaseViewController {
         
         output.wishItems
             .drive(rx.updateSnapshot)
+            .disposed(by: disposeBag)
+        
+        collectionView.rx.itemSelected
+            .withUnretained(self)
+            .compactMap{ owner, indexPath in
+                owner.dataSource.itemIdentifier(for: indexPath)
+            }
+            .bind(to: selectItem)
             .disposed(by: disposeBag)
     }
 }
@@ -92,7 +104,7 @@ private extension WishListViewController {
             return cell
         })
         
-        createSnapshot()
+        updateSnapshot(for: [])
         collectionView.dataSource = dataSource
     }
     
@@ -100,7 +112,7 @@ private extension WishListViewController {
         var contentConfig = UIListContentConfiguration.valueCell()
         contentConfig.text = item.name
         contentConfig.secondaryText = item.date.formatted()
-        contentConfig.image = UIImage(systemName: "heart")
+        contentConfig.image = UIImage(systemName: "heart.fill")
         contentConfig.textProperties.color = .white
         contentConfig.imageProperties.tintColor = .systemRed
         contentConfig.secondaryTextProperties.color = .systemGray6
@@ -112,13 +124,9 @@ private extension WishListViewController {
         cell.contentConfiguration = contentConfig
     }
     
-    func createSnapshot() {
-        snapshot = Snapshot()
-        snapshot.appendSections([0])
-        updateSnapshot(for: [])
-    }
-    
     func updateSnapshot(for items: [Wish]) {
+        var snapshot = Snapshot()
+        snapshot.appendSections([0])
         snapshot.appendItems(items)
         dataSource.apply(snapshot)
     }

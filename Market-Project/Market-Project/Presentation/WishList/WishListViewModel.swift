@@ -17,13 +17,12 @@ final class WishListViewModel: BaseViewModel {
     struct Input {
         let searchText: ControlProperty<String>
         let tapSearchButton: ControlEvent<Void>
-//        let selectItem: PublishRelay<Int>
+        let selectItem: PublishRelay<Wish>
     }
     
     struct Output {
         let wishItems: Driver<[Wish]>
         let emptySearchBarText: Driver<String>
-//        let selectedItem: Driver<Int>
     }
     
     private var wishItems: [UUID: Wish] = [:]
@@ -31,7 +30,6 @@ final class WishListViewModel: BaseViewModel {
     func transform(input: Input) -> Output {
         
         let wishItems = PublishRelay<[Wish]>()
-//        let selectedItem = PublishRelay<Int>()
         let emptySearchBarText = PublishRelay<String>()
         
         input.tapSearchButton
@@ -55,8 +53,19 @@ final class WishListViewModel: BaseViewModel {
             .bind(to: emptySearchBarText)
             .disposed(by: disposeBag)
         
-        return Output(wishItems: wishItems.asDriver(onErrorJustReturn: []), emptySearchBarText: emptySearchBarText.asDriver(onErrorJustReturn: ""))
-//                      selectedItem: selectedItem.asDriver(onErrorJustReturn: 0)
-//        )
+        input.selectItem
+            .withUnretained(self)
+            .map { (owner, item) in
+                owner.wishItems.removeValue(forKey: item.id)
+                return owner.wishItems
+            }
+            .map { items in
+                items.map{ $0.value }.sorted(by: { $0.date > $1.date })
+            }
+            .bind(to: wishItems)
+            .disposed(by: disposeBag)
+        
+        return Output(wishItems: wishItems.asDriver(onErrorJustReturn: []),
+                      emptySearchBarText: emptySearchBarText.asDriver(onErrorJustReturn: ""))
     }
 }
