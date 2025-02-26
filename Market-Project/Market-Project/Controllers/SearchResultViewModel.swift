@@ -20,10 +20,10 @@ final class SearchResultViewModel: BaseViewModel {
     }
     
     struct Output {
-        let searchText: BehaviorRelay<String>
-        let searchResultItems: BehaviorRelay<[MarketItem]>
-        let totalSearchResultCount: BehaviorRelay<String>
-        let errorMessage: PublishRelay<String>
+        let searchText: Driver<String>
+        let searchResultItems: Driver<[MarketItem]>
+        let totalSearchResultCount: Driver<String>
+        let errorMessage: Driver<String>
     }
     
     private let searchText: String
@@ -110,10 +110,10 @@ final class SearchResultViewModel: BaseViewModel {
             }
             .disposed(by: disposeBag)
 
-        return Output(searchText: searchText,
-                      searchResultItems: searchResultItems,
-                      totalSearchResultCount: totalSearchResultCount,
-                      errorMessage: errorMessage)
+        return Output(searchText: searchText.asDriver(),
+                      searchResultItems: searchResultItems.asDriver(),
+                      totalSearchResultCount: totalSearchResultCount.asDriver(),
+                      errorMessage: errorMessage.asDriver(onErrorJustReturn: ""))
     }
     
     deinit {

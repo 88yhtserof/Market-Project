@@ -20,8 +20,8 @@ final class SearchViewModel: BaseViewModel {
     }
     
     struct Output {
-        let searchText: PublishRelay<String>
-        let errorMessage: PublishRelay<String>
+        let searchText: Driver<String>
+        let errorMessage: Driver<String>
     }
     
     func transform(input: Input) -> Output {
@@ -43,13 +43,10 @@ final class SearchViewModel: BaseViewModel {
             .debug("tapSearchButton")
             .bind(to: searchText)
             .disposed(by: disposeBag)
-
-        
-            
         
         
-        return Output(searchText: searchText,
-                      errorMessage: errorMessage)
+        return Output(searchText: searchText.asDriver(onErrorJustReturn: ""),
+                      errorMessage: errorMessage.asDriver(onErrorJustReturn: ""))
     }
     
     deinit {

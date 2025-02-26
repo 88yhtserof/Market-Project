@@ -53,7 +53,7 @@ final class SearchViewController: BaseViewController {
         let output = viewModel.transform(input: input)
         
         output.searchText
-            .bind(with: self, onNext: { owner, text in
+            .drive(with: self, onNext: { owner, text in
                 let viewModel = SearchResultViewModel(searchText: text)
                 let searchResultVC = SearchResultViewController(viewModel: viewModel)
                 owner.navigationController?.pushViewController(searchResultVC, animated: true)
@@ -61,7 +61,8 @@ final class SearchViewController: BaseViewController {
             .disposed(by: disposeBag)
         
         output.errorMessage
-            .bind(to: rx.showErrorAlert)
+            .debug("errorMessage")
+            .drive(rx.showErrorAlert)
             .disposed(by: disposeBag)
     }
 }

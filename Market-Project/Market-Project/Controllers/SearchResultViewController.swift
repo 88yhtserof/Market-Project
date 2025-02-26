@@ -49,7 +49,7 @@ final class SearchResultViewController: BaseViewController {
         let output = viewModel.transform(input: input)
         
         output.searchText
-            .bind(to: navigationItem.rx.title)
+            .drive(navigationItem.rx.title)
             .disposed(by: disposeBag)
         
         let searchResultItems = output.searchResultItems
@@ -68,13 +68,13 @@ final class SearchResultViewController: BaseViewController {
             .disposed(by: disposeBag)
         
         output.totalSearchResultCount
-            .bind(with: self) { owner, text in
+            .drive(with: self) { owner, text in
                 owner.mainView.totalLabel.argument = text
             }
             .disposed(by: disposeBag)
         
         output.errorMessage
-            .bind(to: rx.showErrorAlert)
+            .drive(rx.showErrorAlert)
             .disposed(by: disposeBag)
     }
     
