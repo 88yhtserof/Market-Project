@@ -8,11 +8,14 @@
 import UIKit
 
 import SnapKit
+import RxSwift
+import RxCocoa
 
-class SearchViewController: BaseViewController {
+final class SearchViewController: BaseViewController {
     private let searchBar = UISearchBar()
     
     private let viewModel = SearchViewModel()
+    private let disposeBag = DisposeBag()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,7 +26,6 @@ class SearchViewController: BaseViewController {
     override func configureSubviews() {
         navigationItem.title = SceneCategory.search.title
         
-        searchBar.delegate = self
         searchBar.backgroundImage = UIImage()
         searchBar.searchTextField.backgroundColor = .white.withAlphaComponent(0.1)
         searchBar.searchTextField.tintColor = .systemGray2
@@ -45,25 +47,23 @@ class SearchViewController: BaseViewController {
     }
     
     private func bind() {
-        viewModel.outputShowSearchResult.lazyBind { [weak self] searchWord in
-            guard let self else { return }
-            print("outputShowSearchResult bind")
-            if let searchWord {
-                let searchResultVC = SearchResultViewController()
-                searchResultVC.viewModel.outputSearchWord.send(searchWord)
-                self.navigationController?.pushViewController(searchResultVC, animated: true)
-            } else {
-                self.showAlert(title: "검색어 입력 오류", message: "2글자 이상 작성하세요", Style: .alert)
-            }
-        }
-    }
-}
-
-extension SearchViewController: UISearchBarDelegate {
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        viewModel.inputSearchKeyword.send(searchBar.text)
-        searchBar.text = nil
-        view.endEditing(true)
+        
+        let input = SearchViewModel.Input(editSearchText: searchBar.rx.text.orEmpty,
+                                          tapSearchButton: searchBar.rx.searchButtonClicked)
+        let output = viewModel.transform(input: input)
+        
+        output.searchText
+            .drive(with: self, onNext: { owner, text in
+                let viewModel = SearchResultViewModel(searchText: text)
+                let searchResultVC = SearchResultViewController(viewModel: viewModel)
+                owner.navigationController?.pushViewController(searchResultVC, animated: true)
+            })
+            .disposed(by: disposeBag)
+        
+        output.errorMessage
+            .debug("errorMessage")
+            .drive(rx.showErrorAlert)
+            .disposed(by: disposeBag)
     }
 }
 

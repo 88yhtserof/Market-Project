@@ -7,32 +7,49 @@
 
 import Foundation
 
-class SearchViewModel {
+import RxSwift
+import RxCocoa
+
+final class SearchViewModel: BaseViewModel {
     
-    // IN
-    let inputSearchKeyword: Observable<String?> = Observable(nil)
+    let disposeBag = DisposeBag()
     
-    // OUT
-    let outputShowSearchResult: Observable<String?> = Observable(nil)
+    struct Input {
+        let editSearchText: ControlProperty<String>
+        let tapSearchButton: ControlEvent<Void>
+    }
     
-    init() {
-        print("SearchViewModel init")
+    struct Output {
+        let searchText: Driver<String>
+        let errorMessage: Driver<String>
+    }
+    
+    func transform(input: Input) -> Output {
+        let searchText = PublishRelay<String>()
+        let errorMessage = PublishRelay<String>()
         
-        inputSearchKeyword.lazyBind { [weak self] keyword in
-            print("inputSearchKeyword: \(keyword)")
-            guard let self else { return }
-            var searchWord: String? = nil
-            
-            if let keyword {
-                searchWord = Search.validateSearchWord(keyword)
+        input.tapSearchButton
+            .withLatestFrom(input.editSearchText)
+            .distinctUntilChanged()
+            .flatMap{ text in
+                return Search.validateSearchWord(text)
+                    .debug("ValidateSearchWord")
+                    .catch { error in
+                        errorMessage.accept(error.localizedDescription)
+                        return Observable.just("")
+                    }
             }
-            self.outputShowSearchResult.send(searchWord)
-        }
+            .filter{ !$0.isEmpty }
+            .debug("tapSearchButton")
+            .bind(to: searchText)
+            .disposed(by: disposeBag)
+        
+        
+        return Output(searchText: searchText.asDriver(onErrorJustReturn: ""),
+                      errorMessage: errorMessage.asDriver(onErrorJustReturn: ""))
     }
     
     deinit {
         print("SearchViewModel deinit")
     }
-    
-    
 }

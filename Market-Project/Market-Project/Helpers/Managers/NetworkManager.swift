@@ -8,6 +8,8 @@
 import Foundation
 
 import Alamofire
+import RxSwift
+import RxCocoa
 
 class NetworkManager {
     
@@ -43,46 +45,49 @@ class NetworkManager {
         return urlComponents.url
     }
     
-    func getShopList(searchWord word: String, sort: MarketItemSort, start: String, handler: @escaping (MarketResponse?, String?) -> Void) {
-        guard let url = configrueURLComponents(word, sort: sort, start: start) else {
-            print("Failed to configure URL")
-            return
-        }
-        let httpHeaders: HTTPHeaders = [clientId, clientSecret]
-        
-        AF.request(url, method: .get, headers: httpHeaders)
-            .responseDecodable(of: MarketResponse.self) { response in
-                var networkError: NetworkError?
-                guard let statusCode = response.response?.statusCode else {
-                    print("No statusCode")
-                    return
-                }
-                switch statusCode {
-                case 200..<300:
-                    networkError = .none
-                case 401:
-                    networkError = .unauthorized
-                case 403:
-                    networkError = .forbidden
-                case 400..<500:
-                    networkError = .invalidURL
-                case 500:
-                    networkError = .systemError
-                default:
-                    networkError = .none
-                }
-                
-                switch response.result {
-                case .success(let value):
-                    print("Success")
-                    handler(value, nil)
-                case .failure(let error):
-                    print("Fail: ", error)
-                    print(networkError?.errorDescription ?? "")
-                    handler(nil, networkError?.errorMessageForUser)
-                    
-                }
+    func getShopList(searchWord word: String, sort: MarketItemSort, start: String) -> Single<MarketResponse?> { // self 확인
+        return Single<MarketResponse?>.create { observer in
+            guard let url = self.configrueURLComponents(word, sort: sort, start: start) else {
+                observer(.failure(NetworkError.invalidURL))
+                return Disposables.create()
             }
+            let httpHeaders: HTTPHeaders = [self.clientId, self.clientSecret]
+            
+            AF.request(url, method: .get, headers: httpHeaders)
+                .responseDecodable(of: MarketResponse.self) { response in
+                    var networkError: NetworkError?
+                    guard let statusCode = response.response?.statusCode else {
+                        observer(.failure(NetworkError.noStatusCode))
+                        return
+                    }
+                    switch statusCode {
+                    case 200..<300:
+                        networkError = .none
+                    case 401:
+                        networkError = .unauthorized
+                    case 403:
+                        networkError = .forbidden
+                    case 400..<500:
+                        networkError = .invalidURL
+                    case 500:
+                        networkError = .systemError
+                    default:
+                        networkError = .none
+                    }
+                    
+                    switch response.result {
+                    case .success(let value):
+                        print("Success")
+                        observer(.success(value))
+                    case .failure(let error):
+                        print("Fail: ", error)
+                        observer(.failure(networkError!.errorMessageForUser as! Error))
+                    }
+                }
+            return Disposables.create{
+                print("Disposed")
+            }
+        }
     }
 }
 
@@ -94,6 +99,7 @@ enum NetworkError: Error {
     case invalidURL
     case decodingFailed
     case systemError
+    case noStatusCode
     
     var errorDescription: String? {
         switch self {
@@ -109,6 +115,8 @@ enum NetworkError: Error {
             return "Decoding failed"
         case .systemError:
             return "System error"
+        case .noStatusCode:
+            return "No status code"
         }
     }
     

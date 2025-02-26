@@ -57,8 +57,8 @@ class SearchResultMainView: BaseView {
             .enumerated()
             .forEach{ $0.element.tag = $0.offset }
         
-        collectionView.delegate = delegate
-        collectionView.dataSource = delegate
+//        collectionView.delegate = delegate
+//        collectionView.dataSource = delegate
         collectionView.register(SearchResultCollectionViewCell.self, forCellWithReuseIdentifier: SearchResultCollectionViewCell.identifier)
         collectionView.backgroundColor = .black
     }
