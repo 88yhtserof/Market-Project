@@ -50,7 +50,16 @@ final class WishListViewController: BaseViewController {
     
     //MARK: - Bind
     private func bind() {
+        let input = WishListViewModel.Input(searchText: searchController.searchBar.rx.text.orEmpty, tapSearchButton: searchController.searchBar.rx.searchButtonClicked)
+        let output = viewModel.transform(input: input)
         
+        output.emptySearchBarText
+            .drive(searchController.searchBar.rx.text)
+            .disposed(by: disposeBag)
+        
+        output.wishItems
+            .drive(rx.updateSnapshot)
+            .disposed(by: disposeBag)
     }
 }
 
@@ -71,9 +80,9 @@ private extension WishListViewController {
 //MARK: - CollectionView DataSource
 private extension WishListViewController {
     
-    typealias CellRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, Int>
-    typealias DataSource = UICollectionViewDiffableDataSource<Int, Int>
-    typealias Snapshot = NSDiffableDataSourceSnapshot<Int, Int>
+    typealias CellRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, Wish>
+    typealias DataSource = UICollectionViewDiffableDataSource<Int, Wish>
+    typealias Snapshot = NSDiffableDataSourceSnapshot<Int, Wish>
     
     func configureDataSource() {
         let cellRegistration = CellRegistration(handler: cellRegistrationHandler)
@@ -87,10 +96,10 @@ private extension WishListViewController {
         collectionView.dataSource = dataSource
     }
     
-    func cellRegistrationHandler(cell: UICollectionViewListCell, indexPath: IndexPath, item: Int) {
+    func cellRegistrationHandler(cell: UICollectionViewListCell, indexPath: IndexPath, item: Wish) {
         var contentConfig = UIListContentConfiguration.valueCell()
-        contentConfig.text = "제품명"
-        contentConfig.secondaryText = "날짜"
+        contentConfig.text = item.name
+        contentConfig.secondaryText = item.date.formatted()
         contentConfig.image = UIImage(systemName: "heart")
         contentConfig.textProperties.color = .white
         contentConfig.imageProperties.tintColor = .systemRed
@@ -105,12 +114,20 @@ private extension WishListViewController {
     
     func createSnapshot() {
         snapshot = Snapshot()
-        updateSnapshot()
+        snapshot.appendSections([0])
+        updateSnapshot(for: [])
     }
     
-    func updateSnapshot() {
-        snapshot.appendSections([0])
-        snapshot.appendItems([1, 3, 4, 5, 6, 10, 11, 12, 13, 14])
+    func updateSnapshot(for items: [Wish]) {
+        snapshot.appendItems(items)
         dataSource.apply(snapshot)
+    }
+}
+
+private extension Reactive where Base: WishListViewController {
+    var updateSnapshot: Binder<[Wish]> {
+        Binder(base) { base, value in
+            base.updateSnapshot(for: value)
+        }
     }
 }
