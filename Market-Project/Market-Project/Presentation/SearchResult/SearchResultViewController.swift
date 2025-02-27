@@ -76,6 +76,11 @@ final class SearchResultViewController: BaseViewController {
         output.errorMessage
             .drive(rx.showErrorAlert)
             .disposed(by: disposeBag)
+        
+        mainView.collectionView.rx.itemSelected
+            .map{ _ in MarketItemDetailViewController() }
+            .bind(to: navigationController!.rx.pushViewController)
+            .disposed(by: disposeBag)
     }
     
     //MARK: - Actions
