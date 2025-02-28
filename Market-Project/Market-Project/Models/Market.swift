@@ -14,11 +14,20 @@ struct MarketResponse: Decodable {
     let items: [MarketItem]
 }
 
-struct MarketItem: Decodable {
+struct MarketItem: Decodable, Identifiable {
+    
+    var id: String
+    
     let title: String
     let image: String
     let lprice: String
     let mallName: String
+    let link: String
+    
+    enum CodingKeys: String, CodingKey {
+        case id = "productId"
+        case title, image, lprice, mallName, link
+    }
 }
 
 enum MarketItemSort: Int {
