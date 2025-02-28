@@ -12,7 +12,8 @@ import SnapKit
 
 class MarketItemDetailViewController: BaseViewController {
     
-    var webView = WKWebView(frame: .zero)
+    private let wishButton = WishButton()
+    private let webView = WKWebView(frame: .zero)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,10 +25,14 @@ class MarketItemDetailViewController: BaseViewController {
     }
     
     override func configureSubviews() {
-        view.addSubviews([webView])
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: wishButton)
     }
     
     override func configureHierarchy() {
+        view.addSubviews([webView])
+    }
+    
+    override func configureConstraints() {
         webView.snp.makeConstraints { make in
             make.top.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
             make.bottom.equalToSuperview()
