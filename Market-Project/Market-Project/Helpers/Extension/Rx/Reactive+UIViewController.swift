@@ -1,5 +1,5 @@
 //
-//  Reactive+.swift
+//  Reactive+UIViewController.swift
 //  Market-Project
 //
 //  Created by 임윤휘 on 2/25/25.
@@ -19,14 +19,6 @@ extension Reactive where Base: UIViewController {
             alert.addAction(action)
             
             base.present(alert, animated: true)
-        }
-    }
-}
-
-extension Reactive where Base: UINavigationController {
-    var pushViewController: Binder<UIViewController> {
-        return Binder(base) { base, value in
-            base.pushViewController(value, animated: true)
         }
     }
 }
