@@ -10,8 +10,9 @@ import UIKit
 import SnapKit
 import Kingfisher
 
-class SearchResultCollectionViewCell: BaseCollectionViewCell, ListCellConfigurable {
+final class SearchResultCollectionViewCell: BaseCollectionViewCell, ListCellConfigurable {
     private let imageView = UIImageView()
+    private let wishButton = WishButton()
     private let productNameLabel = WhiteLabel()
     private let titleLabel = WhiteLabel()
     private let priceLabel = WhiteLabel()
@@ -40,7 +41,7 @@ class SearchResultCollectionViewCell: BaseCollectionViewCell, ListCellConfigurab
     }
     
     override func configureHierarchy() {
-        addSubviews([stackView])
+        contentView.addSubviews([stackView, wishButton])
     }
     
     override func configureConstraints() {
@@ -49,6 +50,11 @@ class SearchResultCollectionViewCell: BaseCollectionViewCell, ListCellConfigurab
         imageView.snp.makeConstraints { make in
             make.width.equalTo(width)
             make.height.equalTo(imageView.snp.width)
+        }
+        
+        wishButton.snp.makeConstraints { make in
+            make.bottom.equalTo(imageView).inset(8)
+            make.trailing.equalTo(imageView)
         }
         
         stackView.snp.makeConstraints { make in
