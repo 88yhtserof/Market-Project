@@ -61,12 +61,6 @@ final class SearchResultViewController: BaseViewController {
             }
             .disposed(by: disposeBag)
         
-        searchResultItems
-            .drive(with: self) { owner, _ in
-                owner.mainView.collectionView.contentOffset = .zero
-            }
-            .disposed(by: disposeBag)
-        
         output.totalSearchResultCount
             .drive(with: self) { owner, text in
                 owner.mainView.totalLabel.argument = text
@@ -75,6 +69,10 @@ final class SearchResultViewController: BaseViewController {
         
         output.errorMessage
             .drive(rx.showErrorAlert)
+            .disposed(by: disposeBag)
+        
+        output.scrollContentOffset
+            .drive(mainView.collectionView.rx.contentOffset)
             .disposed(by: disposeBag)
         
         mainView.collectionView.rx.itemSelected

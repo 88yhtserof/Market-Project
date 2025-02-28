@@ -24,6 +24,7 @@ final class SearchResultViewModel: BaseViewModel {
         let searchResultItems: Driver<[MarketItem]>
         let totalSearchResultCount: Driver<String>
         let errorMessage: Driver<String>
+        let scrollContentOffset: Driver<CGPoint>
     }
     
     private let searchText: String
@@ -42,6 +43,7 @@ final class SearchResultViewModel: BaseViewModel {
         let searchResultItems = BehaviorRelay<[MarketItem]>(value: [])
         let totalSearchResultCount = BehaviorRelay<String>(value: "")
         let errorMessage = PublishRelay<String>()
+        let scrollContentOffset = PublishRelay<CGPoint>()
         
         searchText
             .withUnretained(self)
@@ -64,6 +66,7 @@ final class SearchResultViewModel: BaseViewModel {
                 totalSearchResultCount.accept(response.total.decimal() ?? "")
                 owner.searchResultItems = response.items
                 searchResultItems.accept(owner.searchResultItems)
+                scrollContentOffset.accept(.zero)
             }
             .disposed(by: disposeBag)
         
@@ -113,7 +116,8 @@ final class SearchResultViewModel: BaseViewModel {
         return Output(searchText: searchText.asDriver(),
                       searchResultItems: searchResultItems.asDriver(),
                       totalSearchResultCount: totalSearchResultCount.asDriver(),
-                      errorMessage: errorMessage.asDriver(onErrorJustReturn: ""))
+                      errorMessage: errorMessage.asDriver(onErrorJustReturn: ""),
+                      scrollContentOffset: scrollContentOffset.asDriver(onErrorJustReturn: .zero))
     }
     
     deinit {
