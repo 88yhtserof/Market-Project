@@ -12,8 +12,7 @@ final class WishButton: UIButton {
     init() {
         super.init(frame: .zero)
         
-        tintColor = .white
-        configurationUpdateHandler = updateHandler
+        configureView()
     }
     
     required init?(coder: NSCoder) {
@@ -35,15 +34,26 @@ final class WishButton: UIButton {
             break
         }
     }
+}
+
+private extension WishButton {
     
-    private func selectedConfiguration() -> Configuration {
+    func configureView() {
+        tintColor = .white
+        configurationUpdateHandler = updateHandler
+        layer.shadowColor = UIColor.black.cgColor
+        layer.shadowOffset = CGSize(width: 0, height: 0)
+        layer.shadowOpacity = 0.6
+    }
+    
+    func selectedConfiguration() -> Configuration {
         var config = Configuration.plain()
         config.image = UIImage(systemName: "heart.fill")
         config.baseBackgroundColor = .clear
         return config
     }
     
-    private func normalConfiguration() -> Configuration {
+    func normalConfiguration() -> Configuration {
         var config = Configuration.plain()
         config.image = UIImage(systemName: "heart")
         return config
