@@ -9,19 +9,26 @@ import UIKit
 import WebKit
 
 import SnapKit
+import RxSwift
+import RxCocoa
 
-class MarketItemDetailViewController: BaseViewController {
+final class MarketItemDetailViewController: BaseViewController {
     
     private let wishButton = WishButton()
     private let webView = WKWebView(frame: .zero)
     
+    private let viewModel: MarketItemDetailViewModel
+    private let disposeBag = DisposeBag()
+    
+    init(viewModel: MarketItemDetailViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if let url = URL(string: "https://www.apple.com") {
-            let request = URLRequest(url: url)
-            webView.load(request)
-        }
+        bind()
     }
     
     override func configureSubviews() {
@@ -37,5 +44,16 @@ class MarketItemDetailViewController: BaseViewController {
             make.top.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
             make.bottom.equalToSuperview()
         }
+    }
+    
+    private func bind() {
+        
+        let input = MarketItemDetailViewModel.Input()
+        let output = viewModel.transform(input: input)
+        
+        output.url
+            .compactMap{ $0 }
+            .drive(webView.rx.load)
+            .disposed(by: disposeBag)
     }
 }
