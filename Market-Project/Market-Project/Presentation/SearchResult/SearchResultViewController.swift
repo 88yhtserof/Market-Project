@@ -45,7 +45,8 @@ final class SearchResultViewController: BaseViewController {
     
     private func bind() {
         let input = SearchResultViewModel.Input(tapSortButton: sortButtonDidTapped,
-                                                scrollList: mainView.collectionView.rx.willDisplayCell.map{ $0.at })
+                                                scrollList: mainView.collectionView.rx.willDisplayCell.map{ $0.at },
+                                                selectItem: mainView.collectionView.rx.modelSelected(MarketItem.self))
         let output = viewModel.transform(input: input)
         
         output.searchText
@@ -75,9 +76,11 @@ final class SearchResultViewController: BaseViewController {
             .drive(mainView.collectionView.rx.contentOffset)
             .disposed(by: disposeBag)
         
-        mainView.collectionView.rx.itemSelected
-            .map{ _ in MarketItemDetailViewController() }
-            .bind(to: navigationController!.rx.pushViewController)
+        output.itemForMarketItemDetail
+            .compactMap{ $0 }
+            .map { MarketItemDetailViewModel(id: $0.id, url: $0.url) }
+            .map{ MarketItemDetailViewController(viewModel: $0) }
+            .drive(navigationController!.rx.pushViewController)
             .disposed(by: disposeBag)
     }
     

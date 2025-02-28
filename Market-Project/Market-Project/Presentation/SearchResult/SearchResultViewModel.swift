@@ -17,6 +17,7 @@ final class SearchResultViewModel: BaseViewModel {
     struct Input {
         let tapSortButton: PublishRelay<Int>
         let scrollList: Observable<IndexPath>
+        let selectItem: ControlEvent<MarketItem>
     }
     
     struct Output {
@@ -25,6 +26,7 @@ final class SearchResultViewModel: BaseViewModel {
         let totalSearchResultCount: Driver<String>
         let errorMessage: Driver<String>
         let scrollContentOffset: Driver<CGPoint>
+        let itemForMarketItemDetail: Driver<(id: String, url: String)?>
     }
     
     private let searchText: String
@@ -44,6 +46,7 @@ final class SearchResultViewModel: BaseViewModel {
         let totalSearchResultCount = BehaviorRelay<String>(value: "")
         let errorMessage = PublishRelay<String>()
         let scrollContentOffset = PublishRelay<CGPoint>()
+        let itemForMarketItemDetail = PublishRelay<(id: String, url: String)?>()
         
         searchText
             .withUnretained(self)
@@ -66,7 +69,7 @@ final class SearchResultViewModel: BaseViewModel {
                 totalSearchResultCount.accept(response.total.decimal() ?? "")
                 owner.searchResultItems = response.items
                 searchResultItems.accept(owner.searchResultItems)
-                scrollContentOffset.accept(.zero)
+                 scrollContentOffset.accept(.zero)
             }
             .disposed(by: disposeBag)
         
@@ -112,12 +115,18 @@ final class SearchResultViewModel: BaseViewModel {
                 searchText.accept(owner.searchText)
             }
             .disposed(by: disposeBag)
+        
+        input.selectItem
+            .map{ ($0.id, $0.link) }
+            .bind(to: itemForMarketItemDetail)
+            .disposed(by: disposeBag)
 
         return Output(searchText: searchText.asDriver(),
                       searchResultItems: searchResultItems.asDriver(),
                       totalSearchResultCount: totalSearchResultCount.asDriver(),
                       errorMessage: errorMessage.asDriver(onErrorJustReturn: ""),
-                      scrollContentOffset: scrollContentOffset.asDriver(onErrorJustReturn: .zero))
+                      scrollContentOffset: scrollContentOffset.asDriver(onErrorJustReturn: .zero),
+                      itemForMarketItemDetail: itemForMarketItemDetail.asDriver(onErrorJustReturn: nil))
     }
     
     deinit {
