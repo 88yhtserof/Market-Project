@@ -26,7 +26,7 @@ final class SearchResultViewModel: BaseViewModel {
         let totalSearchResultCount: Driver<String>
         let errorMessage: Driver<String>
         let scrollContentOffset: Driver<CGPoint>
-        let itemForMarketItemDetail: Driver<(id: String, url: String)?>
+        let itemForMarketItemDetail: Driver<MarketItem?>
     }
     
     private let searchText: String
@@ -46,7 +46,7 @@ final class SearchResultViewModel: BaseViewModel {
         let totalSearchResultCount = BehaviorRelay<String>(value: "")
         let errorMessage = PublishRelay<String>()
         let scrollContentOffset = PublishRelay<CGPoint>()
-        let itemForMarketItemDetail = PublishRelay<(id: String, url: String)?>()
+        let itemForMarketItemDetail = PublishRelay<MarketItem?>()
         
         searchText
             .withUnretained(self)
@@ -117,7 +117,6 @@ final class SearchResultViewModel: BaseViewModel {
             .disposed(by: disposeBag)
         
         input.selectItem
-            .map{ ($0.id, $0.link) }
             .bind(to: itemForMarketItemDetail)
             .disposed(by: disposeBag)
 

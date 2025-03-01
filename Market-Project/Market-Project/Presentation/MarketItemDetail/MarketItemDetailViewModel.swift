@@ -15,7 +15,7 @@ final class MarketItemDetailViewModel: BaseViewModel {
     let disposeBag = DisposeBag()
     
     struct Input {
-        
+        let selectWishButton: PublishRelay<Bool>
     }
     
     struct Output {
@@ -23,12 +23,14 @@ final class MarketItemDetailViewModel: BaseViewModel {
         let isWished: Driver<Bool>
     }
     
+    private let marketItem: MarketItem
     private let id: String
     private let urlString: String
     
-    init(id: String, url: String) {
-        self.id = id
-        self.urlString = url
+    init(item marketItem: MarketItem) {
+        self.marketItem = marketItem
+        self.id = marketItem.id
+        self.urlString = marketItem.link
     }
     
     func transform(input: Input) -> Output {
@@ -42,6 +44,21 @@ final class MarketItemDetailViewModel: BaseViewModel {
             .bind(to: url)
             .disposed(by: disposeBag)
         
+        
+        Observable.just(id)
+            .compactMap { WishListManager.shared.isWished($0) }
+            .bind(to: isWished)
+            .disposed(by: disposeBag)
+        
+        input.selectWishButton
+            .bind(with: self) { owner, isSelected in
+                if isSelected {
+                    WishListManager.shared.addToWishList(owner.id, item: owner.marketItem)
+                } else {
+                    WishListManager.shared.removeFromWishList(owner.id)
+                }
+            }
+            .disposed(by: disposeBag)
         
         return Output(
             url: url.asDriver(),

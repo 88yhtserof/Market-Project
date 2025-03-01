@@ -47,13 +47,24 @@ final class MarketItemDetailViewController: BaseViewController {
     }
     
     private func bind() {
+        let changeWishButtonState = PublishRelay<Bool>()
         
-        let input = MarketItemDetailViewModel.Input()
+        let input = MarketItemDetailViewModel.Input(selectWishButton: changeWishButtonState)
         let output = viewModel.transform(input: input)
         
         output.url
             .compactMap{ $0 }
             .drive(webView.rx.load)
+            .disposed(by: disposeBag)
+        
+        output.isWished
+            .drive(wishButton.rx.isSelected)
+            .disposed(by: disposeBag)
+        
+        wishButton.rx.tap
+            .withUnretained(self)
+            .map{ owner, _ in owner.wishButton.isSelected }
+            .bind(to: changeWishButtonState)
             .disposed(by: disposeBag)
     }
 }
