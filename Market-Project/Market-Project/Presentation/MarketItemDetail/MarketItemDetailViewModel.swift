@@ -26,11 +26,15 @@ final class MarketItemDetailViewModel: BaseViewModel {
     private let marketItem: MarketItem
     private let id: String
     private let urlString: String
+    private let isWished: Bool
     
-    init(item marketItem: MarketItem) {
-        self.marketItem = marketItem
-        self.id = marketItem.id
-        self.urlString = marketItem.link
+    init(value: (MarketItem, Bool)) {
+        let (item, isWished) = value
+        
+        self.marketItem = item
+        self.id = item.id
+        self.urlString = item.link
+        self.isWished = isWished
     }
     
     func transform(input: Input) -> Output {
@@ -45,8 +49,7 @@ final class MarketItemDetailViewModel: BaseViewModel {
             .disposed(by: disposeBag)
         
         
-        Observable.just(id)
-            .compactMap { WishListManager.shared.isWished($0) }
+        Observable.just(self.isWished)
             .bind(to: isWished)
             .disposed(by: disposeBag)
         

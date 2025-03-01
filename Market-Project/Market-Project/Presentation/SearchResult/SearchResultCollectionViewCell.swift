@@ -62,7 +62,11 @@ final class SearchResultCollectionViewCell: BaseCollectionViewCell, ListCellConf
         }
     }
     
-    func configure(with item: MarketItem) {
+    func configure(with value: (MarketItem, Bool)) {
+        let (item, isWished) = value
+        
+        wishButton.isSelected = isWished
+        
         titleLabel.text = item.title.replacingHTMLTags
         priceLabel.text = (Int(item.lprice) ?? 0).decimal()
         productNameLabel.text = item.mallName
