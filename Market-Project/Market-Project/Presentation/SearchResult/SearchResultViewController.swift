@@ -78,7 +78,7 @@ final class SearchResultViewController: BaseViewController {
         
         output.itemForMarketItemDetail
             .compactMap{ $0 }
-            .map { MarketItemDetailViewModel(value: $0) }
+            .map { MarketItemDetailViewModel(item: $0) }
             .map{ MarketItemDetailViewController(viewModel: $0) }
             .drive(navigationController!.rx.pushViewController)
             .disposed(by: disposeBag)
