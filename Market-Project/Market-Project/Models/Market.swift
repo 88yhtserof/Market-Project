@@ -14,7 +14,7 @@ struct MarketResponse: Decodable {
     let items: [MarketItem]
 }
 
-struct MarketItem: Decodable, Identifiable {
+struct MarketItem: Codable, Identifiable {
     
     var id: String
     
