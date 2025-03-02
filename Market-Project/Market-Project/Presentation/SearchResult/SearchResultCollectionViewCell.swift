@@ -9,10 +9,12 @@ import UIKit
 
 import SnapKit
 import Kingfisher
+import RxSwift
+import RxCocoa
 
-final class SearchResultCollectionViewCell: BaseCollectionViewCell, ListCellConfigurable {
+final class SearchResultCollectionViewCell: BaseCollectionViewCell {
     private let imageView = UIImageView()
-    private let wishButton = WishButton()
+    let wishButton = WishButton()
     private let productNameLabel = WhiteLabel()
     private let titleLabel = WhiteLabel()
     private let priceLabel = WhiteLabel()
@@ -20,9 +22,14 @@ final class SearchResultCollectionViewCell: BaseCollectionViewCell, ListCellConf
     
     static let identifier = String(describing: SearchViewController.self)
     
+    
+    private var viewModel: SearchResultCollectionViewCellViewModel!
+    private var disposedBag = DisposeBag()
+    
     override func prepareForReuse() {
         super.prepareForReuse()
         imageView.image = UIImage(systemName: "circle.dotted")
+        disposedBag = DisposeBag()
     }
     
     override func configureSubviews() {
@@ -62,16 +69,33 @@ final class SearchResultCollectionViewCell: BaseCollectionViewCell, ListCellConf
         }
     }
     
-    func configure(with value: (MarketItem, Bool)) {
-        let (item, isWished) = value
+    func configure(viewModel: SearchResultCollectionViewCellViewModel) {
         
-        wishButton.isSelected = isWished
+        self.viewModel = viewModel
         
-        titleLabel.text = item.title.replacingHTMLTags
-        priceLabel.text = (Int(item.lprice) ?? 0).decimal()
-        productNameLabel.text = item.mallName
-        if let image = URL(string: item.image) {
-            imageView.kf.setImage(with: image)
-        }
+        let input = SearchResultCollectionViewCellViewModel
+            .Input(tapWishButton: wishButton.rx.tap,
+                   changedWishButtonSelectedState: wishButton.rx.isSelectedState)
+        let output = viewModel.transform(input: input)
+        
+        
+        output.item
+            .drive(with: self) { owner, item in
+                owner.titleLabel.text = item.title.replacingHTMLTags
+                owner.priceLabel.text = (Int(item.lprice) ?? 0).decimal()
+                owner.productNameLabel.text = item.mallName
+            }
+            .disposed(by: disposedBag)
+        
+        output.isWished
+            .drive(wishButton.rx.isSelectedState)
+            .disposed(by: disposedBag)
+        
+        output.imageURL
+            .compactMap{ $0 }
+            .drive(with: self) { owner, url in
+                owner.imageView.kf.setImage(with: url)
+            }
+            .disposed(by: disposedBag)
     }
 }

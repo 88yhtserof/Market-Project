@@ -7,6 +7,9 @@
 
 import UIKit
 
+import RxSwift
+import RxCocoa
+
 final class WishButton: UIButton {
     
     init() {
@@ -57,5 +60,15 @@ private extension WishButton {
         var config = Configuration.plain()
         config.image = UIImage(systemName: "heart")
         return config
+    }
+}
+
+extension Reactive where Base: WishButton {
+    var isSelectedState: ControlProperty<Bool> {
+        return controlProperty(editingEvents: [.touchUpInside]) { button in
+            return button.isSelected
+        } setter: { button, value in
+            button.isSelected = value
+        }
     }
 }

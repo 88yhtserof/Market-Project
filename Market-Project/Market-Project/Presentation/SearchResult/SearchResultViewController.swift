@@ -58,7 +58,8 @@ final class SearchResultViewController: BaseViewController {
         
         searchResultItems
             .drive( mainView.collectionView.rx.items(cellIdentifier: SearchResultCollectionViewCell.identifier, cellType: SearchResultCollectionViewCell.self)) { row, element, cell in
-                cell.configure(with: element)
+                let viewModel = SearchResultCollectionViewCellViewModel(item: element.0, isWished: element.1)
+                cell.configure(viewModel: viewModel)
             }
             .disposed(by: disposeBag)
         
