@@ -97,5 +97,19 @@ final class SearchResultCollectionViewCell: BaseCollectionViewCell {
                 owner.imageView.kf.setImage(with: url)
             }
             .disposed(by: disposedBag)
+        
+        print("Configure")
+        UserDefaultsManager.$wishList
+            .subscribe(onNext: { d in
+                print("SearchResultCell", d)
+            }, onError: { error in
+                print("Error")
+            }, onCompleted: {
+                print("Completed")
+            }, onDisposed: {
+                print("disposed")
+            })
+        //                    .bind(to: cell.wishButton.rx.isSelected)
+            .disposed(by: disposedBag)
     }
 }
