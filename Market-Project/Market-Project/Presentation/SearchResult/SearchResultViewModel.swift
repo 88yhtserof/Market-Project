@@ -118,6 +118,7 @@ final class SearchResultViewModel: BaseViewModel {
             .distinctUntilChanged()
             .compactMap{ MarketItemSort(rawValue: $0) }
             .bind(with: self) { owner, sort in
+                owner.start = 1
                 owner.sort = sort
                 searchText.accept(owner.searchText)
             }
