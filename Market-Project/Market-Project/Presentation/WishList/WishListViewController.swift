@@ -118,7 +118,7 @@ private extension WishListViewController {
         contentConfig.imageProperties.tintColor = .systemRed
         contentConfig.secondaryTextProperties.color = .systemGray6
         
-        var backgroundConfig = UIBackgroundConfiguration.listCell()
+        var backgroundConfig = UIBackgroundConfiguration.listPlainCell()
         backgroundConfig.cornerRadius = 10
         backgroundConfig.backgroundColor = .black
         cell.backgroundConfiguration = backgroundConfig
