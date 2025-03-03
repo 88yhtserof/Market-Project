@@ -17,7 +17,6 @@ struct UserDefaultsWrapper<T: Codable> {
     
     var wrappedValue: T {
         get {
-            print("Get", key)
             let value = UserDefaultsCodable.shared.object(T.self, forKey: key)
             switch value {
             case .success(let success):
@@ -28,19 +27,17 @@ struct UserDefaultsWrapper<T: Codable> {
             }
         }
         set {
-            print("Set", newValue, key)
             UserDefaultsCodable.shared.set(newValue, forKey: key)
+            setNewValue.onNext(newValue)
         }
     }
     
+    private let setNewValue: BehaviorSubject<T?> = BehaviorSubject(value: nil)
+    
     var projectedValue: Observable<T> {
-        return UserDefaults.standard.rx
-            .observe(T.self, key) // UserDefaults와 그 프로퍼티의 value를 관찰한다 -> 변경사항 발생 시 이벤트로 받는다
-            .map{
-                print(key, $0)
-                return defaultValue // 원래 신호만 전달되는게 맞는건가?
-            }
-            .share()   // 변경 사항 발생 시 모든 구독자에게 동일한 값을 전달하기 위함 + 불필요한 스트림 생성 방지
+        return setNewValue
+            .compactMap{ $0 }
+            .share()
     }
 }
 

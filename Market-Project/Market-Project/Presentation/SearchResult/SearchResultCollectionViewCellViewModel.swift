@@ -16,13 +16,15 @@ final class SearchResultCollectionViewCellViewModel: BaseViewModel {
     
     struct Input {
         let tapWishButton: ControlEvent<Void>
-        let changedWishButtonSelectedState: ControlProperty<Bool>
+        let changeWishButtonSelectedState: ControlProperty<Bool>
+        let didChangedAnotherWishButtonSelectedState: Observable<[String: MarketItem]>
     }
     
     struct Output {
         let item: Driver<MarketItem>
         let isWished: Driver<Bool>
         let imageURL: Driver<URL?>
+        let changedIsWished: Driver<Bool>
     }
     
     private let item: MarketItem
@@ -42,9 +44,10 @@ final class SearchResultCollectionViewCellViewModel: BaseViewModel {
         let item = BehaviorRelay<MarketItem>(value: self.item)
         let isWished = BehaviorRelay<Bool>(value: self.isWished)
         let imageURL = BehaviorRelay<URL?>(value: URL(string: self.item.image))
+        let changedIsWished = PublishRelay<Bool>()
         
         input.tapWishButton
-            .withLatestFrom(input.changedWishButtonSelectedState)
+            .withLatestFrom(input.changeWishButtonSelectedState)
             .bind(with: self) { owner, isSelected in
                 let id = owner.item.id
                 if isSelected {
@@ -55,8 +58,25 @@ final class SearchResultCollectionViewCellViewModel: BaseViewModel {
             }
             .disposed(by: disposeBag)
         
+        input.didChangedAnotherWishButtonSelectedState
+            .withUnretained(self)
+            .map{ owner, dictionary in
+                dictionary.contains(where: { $0.key == owner.self.item.id })
+            }
+            .subscribe(onNext: { result in
+                changedIsWished.accept(result)
+            }, onError: { error in
+                print("Error:", error)
+            }, onCompleted: {
+                print("UserDefaultsManager.$wishList completed")
+            }, onDisposed: {
+                print("UserDefaultsManager.$wishList disposed")
+            })
+            .disposed(by: disposeBag)
+        
         return Output(item: item.asDriver(),
                       isWished: isWished.asDriver(),
-                      imageURL: imageURL.asDriver())
+                      imageURL: imageURL.asDriver(),
+                      changedIsWished: changedIsWished.asDriver(onErrorJustReturn: false))
     }
 }

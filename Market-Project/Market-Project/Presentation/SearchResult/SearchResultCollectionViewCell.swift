@@ -21,15 +21,14 @@ final class SearchResultCollectionViewCell: BaseCollectionViewCell {
     private lazy var stackView = UIStackView(arrangedSubviews: [imageView, productNameLabel, titleLabel, priceLabel])
     
     static let identifier = String(describing: SearchViewController.self)
-    
-    
+       
     private var viewModel: SearchResultCollectionViewCellViewModel!
-    private var disposedBag = DisposeBag()
+    private var disposeBag = DisposeBag()
     
     override func prepareForReuse() {
         super.prepareForReuse()
         imageView.image = UIImage(systemName: "circle.dotted")
-        disposedBag = DisposeBag()
+        disposeBag = DisposeBag()
     }
     
     override func configureSubviews() {
@@ -69,15 +68,15 @@ final class SearchResultCollectionViewCell: BaseCollectionViewCell {
         }
     }
     
-    func configure(viewModel: SearchResultCollectionViewCellViewModel) {
+    func bind(viewModel: SearchResultCollectionViewCellViewModel) {
         
         self.viewModel = viewModel
         
         let input = SearchResultCollectionViewCellViewModel
             .Input(tapWishButton: wishButton.rx.tap,
-                   changedWishButtonSelectedState: wishButton.rx.isSelectedState)
+                   changeWishButtonSelectedState: wishButton.rx.isSelectedState,
+                   didChangedAnotherWishButtonSelectedState: UserDefaultsManager.$wishList)
         let output = viewModel.transform(input: input)
-        
         
         output.item
             .drive(with: self) { owner, item in
@@ -85,31 +84,21 @@ final class SearchResultCollectionViewCell: BaseCollectionViewCell {
                 owner.priceLabel.text = (Int(item.lprice) ?? 0).decimal()
                 owner.productNameLabel.text = item.mallName
             }
-            .disposed(by: disposedBag)
+            .disposed(by: disposeBag)
         
         output.isWished
             .drive(wishButton.rx.isSelectedState)
-            .disposed(by: disposedBag)
+            .disposed(by: disposeBag)
         
         output.imageURL
             .compactMap{ $0 }
             .drive(with: self) { owner, url in
                 owner.imageView.kf.setImage(with: url)
             }
-            .disposed(by: disposedBag)
+            .disposed(by: disposeBag)
         
-        print("Configure")
-        UserDefaultsManager.$wishList
-            .subscribe(onNext: { d in
-                print("SearchResultCell", d)
-            }, onError: { error in
-                print("Error")
-            }, onCompleted: {
-                print("Completed")
-            }, onDisposed: {
-                print("disposed")
-            })
-        //                    .bind(to: cell.wishButton.rx.isSelected)
-            .disposed(by: disposedBag)
+        output.changedIsWished
+            .drive(wishButton.rx.isSelectedState)
+            .disposed(by: disposeBag)
     }
 }
