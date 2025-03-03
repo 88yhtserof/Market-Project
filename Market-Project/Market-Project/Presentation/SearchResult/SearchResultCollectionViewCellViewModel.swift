@@ -28,9 +28,9 @@ final class SearchResultCollectionViewCellViewModel: BaseViewModel {
     private let item: MarketItem
     private let isWished: Bool
     
-    init(item: MarketItem, isWished: Bool) {
+    init(item: MarketItem) {
         self.item = item
-        self.isWished = isWished
+        self.isWished = WishListManager.shared.isWished(item.id)
     }
     
     deinit {

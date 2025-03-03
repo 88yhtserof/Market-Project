@@ -17,12 +17,12 @@ final class SearchResultViewModel: BaseViewModel {
     struct Input {
         let tapSortButton: PublishRelay<Int>
         let scrollList: Observable<IndexPath>
-        let selectItem: ControlEvent<(MarketItem, Bool)>
+        let selectItem: ControlEvent<MarketItem>
     }
     
     struct Output {
         let searchText: Driver<String>
-        let searchResultItems: Driver<[(MarketItem, Bool)]>
+        let searchResultItems: Driver<[MarketItem]>
         let totalSearchResultCount: Driver<String>
         let errorMessage: Driver<String>
         let scrollContentOffset: Driver<CGPoint>
@@ -30,7 +30,7 @@ final class SearchResultViewModel: BaseViewModel {
     }
     
     private let searchText: String
-    private var searchResultItems: [(MarketItem, Bool)] = []
+    private var searchResultItems: [MarketItem] = []
     private var start: Int = 1
     private var total: Int = 0
     private var sort: MarketItemSort = .sim
@@ -42,7 +42,7 @@ final class SearchResultViewModel: BaseViewModel {
     func transform(input: Input) -> Output {
         
         let searchText = BehaviorRelay<String>(value: searchText)
-        let searchResultItems = BehaviorRelay<[(MarketItem, Bool)]>(value: [])
+        let searchResultItems = BehaviorRelay<[MarketItem]>(value: [])
         let totalSearchResultCount = BehaviorRelay<String>(value: "")
         let errorMessage = PublishRelay<String>()
         let scrollContentOffset = PublishRelay<CGPoint>()
@@ -69,8 +69,6 @@ final class SearchResultViewModel: BaseViewModel {
                 totalSearchResultCount.accept(response.total.decimal() ?? "")
                 
                 owner.searchResultItems = response.items
-                    .map{ ($0, WishListManager.shared.isWished($0.id)) }
-                
                 searchResultItems.accept(owner.searchResultItems)
                  scrollContentOffset.accept(.zero)
             }
@@ -105,11 +103,7 @@ final class SearchResultViewModel: BaseViewModel {
             .bind(with: self) { (owner, response) in
                 owner.start += NetworkManager.Pagenation.market.display
                 owner.total = response.total
-                
-                let newItems = response.items
-                    .map{ ($0, WishListManager.shared.isWished($0.id)) }
-                
-                owner.searchResultItems.append(contentsOf: newItems)
+                owner.searchResultItems.append(contentsOf: response.items)
                 searchResultItems.accept(owner.searchResultItems)
             }
             .disposed(by: disposeBag)
@@ -125,7 +119,7 @@ final class SearchResultViewModel: BaseViewModel {
             .disposed(by: disposeBag)
         
         input.selectItem
-            .map{ $0.0 }
+            .map{ $0 }
             .bind(to: itemForMarketItemDetail)
             .disposed(by: disposeBag)
 
