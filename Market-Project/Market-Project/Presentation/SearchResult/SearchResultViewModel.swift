@@ -17,6 +17,7 @@ final class SearchResultViewModel: BaseViewModel {
     struct Input {
         let tapSortButton: PublishRelay<Int>
         let scrollList: Observable<IndexPath>
+        let selectItem: ControlEvent<MarketItem>
     }
     
     struct Output {
@@ -24,6 +25,8 @@ final class SearchResultViewModel: BaseViewModel {
         let searchResultItems: Driver<[MarketItem]>
         let totalSearchResultCount: Driver<String>
         let errorMessage: Driver<String>
+        let scrollContentOffset: Driver<CGPoint>
+        let itemForMarketItemDetail: Driver<MarketItem?>
     }
     
     private let searchText: String
@@ -42,6 +45,8 @@ final class SearchResultViewModel: BaseViewModel {
         let searchResultItems = BehaviorRelay<[MarketItem]>(value: [])
         let totalSearchResultCount = BehaviorRelay<String>(value: "")
         let errorMessage = PublishRelay<String>()
+        let scrollContentOffset = PublishRelay<CGPoint>()
+        let itemForMarketItemDetail = PublishRelay<MarketItem?>()
         
         searchText
             .withUnretained(self)
@@ -62,8 +67,10 @@ final class SearchResultViewModel: BaseViewModel {
                 owner.start = NetworkManager.Pagenation.market.display
                 owner.total = response.total
                 totalSearchResultCount.accept(response.total.decimal() ?? "")
+                
                 owner.searchResultItems = response.items
                 searchResultItems.accept(owner.searchResultItems)
+                 scrollContentOffset.accept(.zero)
             }
             .disposed(by: disposeBag)
         
@@ -105,15 +112,23 @@ final class SearchResultViewModel: BaseViewModel {
             .distinctUntilChanged()
             .compactMap{ MarketItemSort(rawValue: $0) }
             .bind(with: self) { owner, sort in
+                owner.start = 1
                 owner.sort = sort
                 searchText.accept(owner.searchText)
             }
+            .disposed(by: disposeBag)
+        
+        input.selectItem
+            .map{ $0 }
+            .bind(to: itemForMarketItemDetail)
             .disposed(by: disposeBag)
 
         return Output(searchText: searchText.asDriver(),
                       searchResultItems: searchResultItems.asDriver(),
                       totalSearchResultCount: totalSearchResultCount.asDriver(),
-                      errorMessage: errorMessage.asDriver(onErrorJustReturn: ""))
+                      errorMessage: errorMessage.asDriver(onErrorJustReturn: ""),
+                      scrollContentOffset: scrollContentOffset.asDriver(onErrorJustReturn: .zero),
+                      itemForMarketItemDetail: itemForMarketItemDetail.asDriver(onErrorJustReturn: nil))
     }
     
     deinit {

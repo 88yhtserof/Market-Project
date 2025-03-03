@@ -45,7 +45,8 @@ final class SearchResultViewController: BaseViewController {
     
     private func bind() {
         let input = SearchResultViewModel.Input(tapSortButton: sortButtonDidTapped,
-                                                scrollList: mainView.collectionView.rx.willDisplayCell.map{ $0.at })
+                                                scrollList: mainView.collectionView.rx.willDisplayCell.map{ $0.at },
+                                                selectItem: mainView.collectionView.rx.modelSelected(MarketItem.self))
         let output = viewModel.transform(input: input)
         
         output.searchText
@@ -57,13 +58,8 @@ final class SearchResultViewController: BaseViewController {
         
         searchResultItems
             .drive( mainView.collectionView.rx.items(cellIdentifier: SearchResultCollectionViewCell.identifier, cellType: SearchResultCollectionViewCell.self)) { row, element, cell in
-                cell.configure(with: element)
-            }
-            .disposed(by: disposeBag)
-        
-        searchResultItems
-            .drive(with: self) { owner, _ in
-                owner.mainView.collectionView.contentOffset = .zero
+                let viewModel = SearchResultCollectionViewCellViewModel(item: element)
+                cell.bind(viewModel: viewModel)
             }
             .disposed(by: disposeBag)
         
@@ -75,6 +71,17 @@ final class SearchResultViewController: BaseViewController {
         
         output.errorMessage
             .drive(rx.showErrorAlert)
+            .disposed(by: disposeBag)
+        
+        output.scrollContentOffset
+            .drive(mainView.collectionView.rx.contentOffset)
+            .disposed(by: disposeBag)
+        
+        output.itemForMarketItemDetail
+            .compactMap{ $0 }
+            .map { MarketItemDetailViewModel(item: $0) }
+            .map{ MarketItemDetailViewController(viewModel: $0) }
+            .drive(navigationController!.rx.pushViewController)
             .disposed(by: disposeBag)
     }
     
