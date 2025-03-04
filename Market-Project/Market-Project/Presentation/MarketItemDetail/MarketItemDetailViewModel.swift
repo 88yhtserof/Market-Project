@@ -46,16 +46,16 @@ final class MarketItemDetailViewModel: BaseViewModel {
         
         
         Observable.just(id)
-            .compactMap { WishListManager.shared.isWished($0) }
+            .compactMap { MarketTableManager.shared.isWished($0) }
             .bind(to: isWished)
             .disposed(by: disposeBag)
         
         input.selectWishButton
             .bind(with: self) { owner, isSelected in
                 if isSelected {
-                    WishListManager.shared.addToWishList(owner.id, item: owner.marketItem)
+                    MarketTableManager.shared.addToWishList(owner.id, item: owner.marketItem)
                 } else {
-                    WishListManager.shared.removeFromWishList(owner.id)
+                    MarketTableManager.shared.removeFromWishList(owner.id)
                 }
             }
             .disposed(by: disposeBag)
