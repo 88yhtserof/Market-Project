@@ -60,7 +60,8 @@ final class WishListGridViewController: BaseViewController {
     private let sortButtonDidTapped = PublishRelay<Int>()
     
     private func bind() {
-        let input = WishListGridViewModel.Input(selectItem: mainView.collectionView.rx.modelSelected(MarketTable.self))
+        let input = WishListGridViewModel.Input(selectItem: mainView.collectionView.rx.modelSelected(MarketTable.self),
+                                                didChangedAnotherWishButtonSelectedState: RealmProvider.$wishTable)
         let output = viewModel.transform(input: input)
         
         output.searchText

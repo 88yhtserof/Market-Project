@@ -17,6 +17,7 @@ final class WishListGridViewModel: BaseViewModel {
     
     struct Input {
         let selectItem: ControlEvent<MarketTable>
+        let didChangedAnotherWishButtonSelectedState: Observable<Result<Update<MarketTable, String>, any Error>>
     }
     
     struct Output {
@@ -27,7 +28,7 @@ final class WishListGridViewModel: BaseViewModel {
     }
     
     private let searchText: String
-    private var searchResultItems: [MarketItem] = []
+    private var searchResultItems: [MarketTable] = []
     
     init(searchText: String) {
         self.searchText = searchText
@@ -41,15 +42,19 @@ final class WishListGridViewModel: BaseViewModel {
         let itemForMarketItemDetail = PublishRelay<MarketItem?>()
         
         searchText
-            .withUnretained(self)
-            .compactMap { owner, text in
+            .compactMap { text in
                 if text.isEmpty {
                     return MarketTableManager.shared.getWishedItems()
                 } else {
                     return MarketTableManager.shared.getWishedItems() // 검색 기능 구현
                 }
             }
-            .map{ Array($0) }
+            .withUnretained(self)
+            .map{ owner, table in
+                let items = Array(table)
+                owner.searchResultItems = items
+                return owner.searchResultItems
+            }
             .bind(to: searchResultItems)
             .disposed(by: disposeBag)
         
@@ -57,7 +62,28 @@ final class WishListGridViewModel: BaseViewModel {
             .map{ MarketItem(id: $0.id, title: $0.title, image: $0.image, lprice: $0.lprice, mallName: $0.mallName, link: $0.link) }
             .bind(to: itemForMarketItemDetail)
             .disposed(by: disposeBag)
-
+        
+        input.didChangedAnotherWishButtonSelectedState
+            .subscribe(with: self) { owner, result in
+                switch result {
+                case .success(let update):
+                    switch update {
+                    case .delete(let id):
+                        // 개선 필요
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                            searchText.accept(owner.searchText)
+                        }
+                    default:
+                        break
+                    }
+                case .failure(let error):
+                    errorMessage.accept(error.localizedDescription)
+                }
+            } onDisposed: { _ in
+                print("WishListGridViewController dispose")
+            }
+            .disposed(by: disposeBag)
+        
         return Output(searchText: searchText.asDriver(),
                       searchResultItems: searchResultItems.asDriver(),
                       errorMessage: errorMessage.asDriver(onErrorJustReturn: ""),
