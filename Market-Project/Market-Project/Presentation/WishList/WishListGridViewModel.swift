@@ -16,6 +16,7 @@ final class WishListGridViewModel: BaseViewModel {
     let disposeBag = DisposeBag()
     
     struct Input {
+        let editSearchText: ControlProperty<String>
         let selectItem: ControlEvent<MarketTable>
         let didChangedAnotherWishButtonSelectedState: Observable<Result<Update<MarketTable, String>, any Error>>
     }
@@ -27,7 +28,7 @@ final class WishListGridViewModel: BaseViewModel {
         let itemForMarketItemDetail: Driver<MarketItem?>
     }
     
-    private let searchText: String
+    private var searchText: String
     private var searchResultItems: [MarketTable] = []
     
     init(searchText: String) {
@@ -46,7 +47,9 @@ final class WishListGridViewModel: BaseViewModel {
                 if text.isEmpty {
                     return MarketTableManager.shared.getWishedItems()
                 } else {
-                    return MarketTableManager.shared.getWishedItems() // 검색 기능 구현
+                    print(text)
+                    guard let list = MarketTableManager.shared.getWishedItems() else {return nil}
+                    return list.where{ $0.title.contains(text, options: .caseInsensitive) }
                 }
             }
             .withUnretained(self)
@@ -68,7 +71,7 @@ final class WishListGridViewModel: BaseViewModel {
                 switch result {
                 case .success(let update):
                     switch update {
-                    case .delete(let id):
+                    case .delete(_):
                         // 개선 필요
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                             searchText.accept(owner.searchText)
@@ -82,6 +85,13 @@ final class WishListGridViewModel: BaseViewModel {
             } onDisposed: { _ in
                 print("WishListGridViewController dispose")
             }
+            .disposed(by: disposeBag)
+        
+        input.editSearchText
+            .bind(with: self, onNext: { owner, text in
+                owner.searchText = text
+                searchText.accept(text)
+            })
             .disposed(by: disposeBag)
         
         return Output(searchText: searchText.asDriver(),

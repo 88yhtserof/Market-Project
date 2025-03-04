@@ -47,11 +47,11 @@ struct RealmWrapper<T: Object, ID> {
         do {
             try realm.write {
                 realm.add(item, update: .modified)
-//                result.accept(.success(.add(item)))
+                result.accept(.success(.add(item)))
             }
         } catch {
             print("Failed to save data: \(error)")
-//            result.accept(.failure(error))
+            result.accept(.failure(error))
         }
     }
     
