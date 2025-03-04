@@ -18,12 +18,17 @@ final class MarketTableManager {
     private let realm = try! Realm()
     
     func isWished(_ id: String) -> Bool {
+        guard let items = getWishedItems() else { return false }
+        return items.contains(where: { $0.id == id })
+    }
+    
+    func getWishedItems() -> Results<MarketTable>? {
         switch RealmProvider.wishTable {
         case .fetchAll(let items):
-            return items.contains(where: { $0.id == id })
+            return items
         default:
             print("Could not find wish table")
-            return false
+            return nil
         }
     }
     
