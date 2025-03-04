@@ -20,7 +20,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		14C598A72D37970F004C9A2F /* Exceptions for "Market-Project" folder in "Market-Project" target */ = {
+		14E439632D76F94A00CBEA40 /* Exceptions for "Market-Project" folder in "Market-Project" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Resources/Info.plist,
@@ -30,10 +30,10 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		14C598972D37970E004C9A2F /* Market-Project */ = {
+		14E439382D76F94A00CBEA40 /* Market-Project */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				14C598A72D37970F004C9A2F /* Exceptions for "Market-Project" folder in "Market-Project" target */,
+				14E439632D76F94A00CBEA40 /* Exceptions for "Market-Project" folder in "Market-Project" target */,
 			);
 			path = "Market-Project";
 			sourceTree = "<group>";
@@ -60,7 +60,7 @@
 		14C5988C2D37970E004C9A2F = {
 			isa = PBXGroup;
 			children = (
-				14C598972D37970E004C9A2F /* Market-Project */,
+				14E439382D76F94A00CBEA40 /* Market-Project */,
 				14C598962D37970E004C9A2F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -89,7 +89,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				14C598972D37970E004C9A2F /* Market-Project */,
+				14E439382D76F94A00CBEA40 /* Market-Project */,
 			);
 			name = "Market-Project";
 			packageProductDependencies = (
