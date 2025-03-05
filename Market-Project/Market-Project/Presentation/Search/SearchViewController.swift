@@ -71,7 +71,8 @@ final class SearchViewController: BaseViewController {
         wishListBarButtonItem.rx.tap
             .asDriver()
             .drive(with: self) { owner, _ in
-                let wishVC = WishListViewController()
+                let viewModel = WishListGridViewModel(searchText: "")
+                let wishVC = WishListGridViewController(viewModel: viewModel)
                 owner.navigationController?.pushViewController(wishVC, animated: true)
             }
             .disposed(by: disposeBag)

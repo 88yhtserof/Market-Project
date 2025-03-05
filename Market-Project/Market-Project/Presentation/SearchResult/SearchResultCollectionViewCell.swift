@@ -75,7 +75,7 @@ final class SearchResultCollectionViewCell: BaseCollectionViewCell {
         let input = SearchResultCollectionViewCellViewModel
             .Input(tapWishButton: wishButton.rx.tap,
                    changeWishButtonSelectedState: wishButton.rx.isSelectedState,
-                   didChangedAnotherWishButtonSelectedState: UserDefaultsManager.$wishList)
+                   didChangedAnotherWishButtonSelectedState: RealmProvider.$wishTable)
         let output = viewModel.transform(input: input)
         
         output.item

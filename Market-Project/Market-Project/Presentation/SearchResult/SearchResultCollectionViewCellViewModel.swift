@@ -17,7 +17,7 @@ final class SearchResultCollectionViewCellViewModel: BaseViewModel {
     struct Input {
         let tapWishButton: ControlEvent<Void>
         let changeWishButtonSelectedState: ControlProperty<Bool>
-        let didChangedAnotherWishButtonSelectedState: Observable<[String: MarketItem]>
+        let didChangedAnotherWishButtonSelectedState: Observable<Result<Update<MarketTable, String>, any Error>>
     }
     
     struct Output {
@@ -25,6 +25,7 @@ final class SearchResultCollectionViewCellViewModel: BaseViewModel {
         let isWished: Driver<Bool>
         let imageURL: Driver<URL?>
         let changedIsWished: Driver<Bool>
+        let errorMessage: Driver<String>
     }
     
     private let item: MarketItem
@@ -32,7 +33,7 @@ final class SearchResultCollectionViewCellViewModel: BaseViewModel {
     
     init(item: MarketItem) {
         self.item = item
-        self.isWished = WishListManager.shared.isWished(item.id)
+        self.isWished = MarketTableManager.shared.isWished(item.id)
     }
     
     deinit {
@@ -45,38 +46,54 @@ final class SearchResultCollectionViewCellViewModel: BaseViewModel {
         let isWished = BehaviorRelay<Bool>(value: self.isWished)
         let imageURL = BehaviorRelay<URL?>(value: URL(string: self.item.image))
         let changedIsWished = PublishRelay<Bool>()
+        let errorMessage = PublishRelay<String>()
         
         input.tapWishButton
             .withLatestFrom(input.changeWishButtonSelectedState)
             .bind(with: self) { owner, isSelected in
                 let id = owner.item.id
                 if isSelected {
-                    WishListManager.shared.addToWishList(id, item: owner.item)
+                    MarketTableManager.shared.addToWishList(id, item: owner.item)
                 } else {
-                    WishListManager.shared.removeFromWishList(id)
+                    MarketTableManager.shared.removeFromWishList(id)
                 }
             }
             .disposed(by: disposeBag)
         
         input.didChangedAnotherWishButtonSelectedState
             .withUnretained(self)
-            .map{ owner, dictionary in
-                dictionary.contains(where: { $0.key == owner.self.item.id })
+            .compactMap{ owner, result in
+                
+                switch result {
+                case .success(let update):
+                    switch update {
+                    case .add(let table):
+                        return table.id == owner.item.id ? true : nil
+                    case .delete(let id):
+                        return id == owner.self.item.id ? false : nil
+                    default:
+                        return nil
+                    }
+                case .failure(let error):
+                    errorMessage.accept(error.localizedDescription)
+                    return nil
+                }
             }
             .subscribe(onNext: { result in
                 changedIsWished.accept(result)
             }, onError: { error in
                 print("Error:", error)
             }, onCompleted: {
-                print("UserDefaultsManager.$wishList completed")
+                print("RealmProvider.$wishTable completed")
             }, onDisposed: {
-                print("UserDefaultsManager.$wishList disposed")
+                print("RealmProvider.$wishTable disposed")
             })
             .disposed(by: disposeBag)
         
         return Output(item: item.asDriver(),
                       isWished: isWished.asDriver(),
                       imageURL: imageURL.asDriver(),
-                      changedIsWished: changedIsWished.asDriver(onErrorJustReturn: false))
+                      changedIsWished: changedIsWished.asDriver(onErrorJustReturn: false),
+                      errorMessage: errorMessage.asDriver(onErrorJustReturn: ""))
     }
 }

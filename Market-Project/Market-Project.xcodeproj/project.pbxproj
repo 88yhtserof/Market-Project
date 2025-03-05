@@ -10,6 +10,7 @@
 		14C598B72D379CDE004C9A2F /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 14C598B62D379CDE004C9A2F /* SnapKit */; };
 		14C598BA2D379CE7004C9A2F /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 14C598B92D379CE7004C9A2F /* Kingfisher */; };
 		14C598BD2D379CF2004C9A2F /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 14C598BC2D379CF2004C9A2F /* Alamofire */; };
+		14E438962D76F28300CBEA40 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 14E438952D76F28300CBEA40 /* RealmSwift */; };
 		14EE2DE22D6DC5CC0040A020 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 14EE2DE12D6DC5CC0040A020 /* RxCocoa */; };
 		14EE2DE42D6DC5CC0040A020 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 14EE2DE32D6DC5CC0040A020 /* RxSwift */; };
 /* End PBXBuildFile section */
@@ -19,7 +20,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		14C598A72D37970F004C9A2F /* Exceptions for "Market-Project" folder in "Market-Project" target */ = {
+		14E439632D76F94A00CBEA40 /* Exceptions for "Market-Project" folder in "Market-Project" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Resources/Info.plist,
@@ -29,10 +30,10 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		14C598972D37970E004C9A2F /* Market-Project */ = {
+		14E439382D76F94A00CBEA40 /* Market-Project */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				14C598A72D37970F004C9A2F /* Exceptions for "Market-Project" folder in "Market-Project" target */,
+				14E439632D76F94A00CBEA40 /* Exceptions for "Market-Project" folder in "Market-Project" target */,
 			);
 			path = "Market-Project";
 			sourceTree = "<group>";
@@ -44,6 +45,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				14E438962D76F28300CBEA40 /* RealmSwift in Frameworks */,
 				14C598BD2D379CF2004C9A2F /* Alamofire in Frameworks */,
 				14C598BA2D379CE7004C9A2F /* Kingfisher in Frameworks */,
 				14EE2DE42D6DC5CC0040A020 /* RxSwift in Frameworks */,
@@ -58,7 +60,7 @@
 		14C5988C2D37970E004C9A2F = {
 			isa = PBXGroup;
 			children = (
-				14C598972D37970E004C9A2F /* Market-Project */,
+				14E439382D76F94A00CBEA40 /* Market-Project */,
 				14C598962D37970E004C9A2F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -87,7 +89,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				14C598972D37970E004C9A2F /* Market-Project */,
+				14E439382D76F94A00CBEA40 /* Market-Project */,
 			);
 			name = "Market-Project";
 			packageProductDependencies = (
@@ -96,6 +98,7 @@
 				14C598BC2D379CF2004C9A2F /* Alamofire */,
 				14EE2DE12D6DC5CC0040A020 /* RxCocoa */,
 				14EE2DE32D6DC5CC0040A020 /* RxSwift */,
+				14E438952D76F28300CBEA40 /* RealmSwift */,
 			);
 			productName = "Market-Project";
 			productReference = 14C598952D37970E004C9A2F /* Market-Project.app */;
@@ -130,6 +133,7 @@
 				14C598B82D379CE7004C9A2F /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				14C598BB2D379CF2004C9A2F /* XCRemoteSwiftPackageReference "Alamofire" */,
 				14EE2DE02D6DC5CC0040A020 /* XCRemoteSwiftPackageReference "RxSwift" */,
+				14E438942D76F28300CBEA40 /* XCRemoteSwiftPackageReference "realm-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 14C598962D37970E004C9A2F /* Products */;
@@ -393,6 +397,14 @@
 				minimumVersion = 5.10.2;
 			};
 		};
+		14E438942D76F28300CBEA40 /* XCRemoteSwiftPackageReference "realm-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/realm/realm-swift.git";
+			requirement = {
+				kind = exactVersion;
+				version = 20.0.1;
+			};
+		};
 		14EE2DE02D6DC5CC0040A020 /* XCRemoteSwiftPackageReference "RxSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ReactiveX/RxSwift.git";
@@ -418,6 +430,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 14C598BB2D379CF2004C9A2F /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
+		};
+		14E438952D76F28300CBEA40 /* RealmSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 14E438942D76F28300CBEA40 /* XCRemoteSwiftPackageReference "realm-swift" */;
+			productName = RealmSwift;
 		};
 		14EE2DE12D6DC5CC0040A020 /* RxCocoa */ = {
 			isa = XCSwiftPackageProductDependency;
