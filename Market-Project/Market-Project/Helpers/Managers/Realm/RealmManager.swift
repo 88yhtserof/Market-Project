@@ -18,7 +18,7 @@ struct RealmWrapper<T: Object, ID> {
     
     var wrappedValue: Update<T, ID> {
         get {
-            return .fetchAll(fetchAll()) // id를 인수로 받아 해당하는 데이터만을 조회해 반환할 수는 없을까
+            return .fetchAll(fetchAll()) // id를 인수로 받아 해당하는 데이터만을 조회해 반환할 수는 없을까.
         }
         set {
             switch newValue {
@@ -34,6 +34,7 @@ struct RealmWrapper<T: Object, ID> {
     
     private let result = PublishRelay<Result<Update<T,ID>, Error>>()
     
+    // Refactoring: Realm 변경 사항 대응
     var projectedValue: Observable<Result<Update<T,ID>, Error>> {
         return result
             .share()

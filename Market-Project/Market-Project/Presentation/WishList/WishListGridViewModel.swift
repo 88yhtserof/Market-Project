@@ -29,7 +29,6 @@ final class WishListGridViewModel: BaseViewModel {
     }
     
     private var searchText: String
-    private var searchResultItems: [MarketTable] = []
     
     init(searchText: String) {
         self.searchText = searchText
@@ -52,12 +51,7 @@ final class WishListGridViewModel: BaseViewModel {
                     return list.where{ $0.title.contains(text, options: .caseInsensitive) }
                 }
             }
-            .withUnretained(self)
-            .map{ owner, table in
-                let items = Array(table)
-                owner.searchResultItems = items
-                return owner.searchResultItems
-            }
+            .map{ Array($0) }
             .bind(to: searchResultItems)
             .disposed(by: disposeBag)
         
@@ -73,7 +67,7 @@ final class WishListGridViewModel: BaseViewModel {
                     switch update {
                     case .delete(_):
                         // 개선 필요
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { //Exclusive Lock 해결 목적
                             searchText.accept(owner.searchText)
                         }
                     default:
